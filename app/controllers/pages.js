@@ -5,7 +5,7 @@ const Page = models.page
 const authenticate = require('./concerns/authenticate')
 
 const index = (req, res, next) => {
-  const owner = { _owner: req.currentUser._id }
+  const owner = { _owner: req.user._id }
   Page.find(owner)
     .then(pages => res.json({ pages }))
     .catch(err => next(err))
@@ -19,7 +19,7 @@ const show = (req, res, next) => {
 
 const create = (req, res, next) => {
   const page = Object.assign(req.body.page, {
-    _owner: req.currentUser._id
+    _owner: req.user._id
   })
   Page.create(page)
     .then(page => res.json({ page }))
@@ -27,7 +27,7 @@ const create = (req, res, next) => {
 }
 
 const update = (req, res, next) => {
-  const search = { _id: req.params.id, _owner: req.currentUser._id }
+  const search = { _id: req.params.id, _owner: req.user._id }
   Page.findOne(search)
     .then(page => {
       if (!page) {
@@ -42,7 +42,7 @@ const update = (req, res, next) => {
 }
 
 const destroy = (req, res, next) => {
-  const search = { _id: req.params.id, _owner: req.currentUser._id }
+  const search = { _id: req.params.id, _owner: req.user._id }
   Page.findOne(search)
     .then(page => {
       if (!page) {
