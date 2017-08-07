@@ -2,14 +2,41 @@
 
 const mongoose = require('mongoose')
 
-const blogSchema = new mongoose.Schema({
-  text: {
+const postSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  body: {
     type: String,
     required: true
   },
   _owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Blog',
+    required: true
+  }
+}, {
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: function (doc, ret, options) {
+      const blogId = (options.blog && options.blog._id) || false
+      ret.editable = blogId && blogId.equals(doc._owner)
+      return ret
+    }
+  }
+})
+
+const blogSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+  posts: [postSchema],
+  _owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Blog',
     required: true
   }
 }, {
@@ -24,10 +51,12 @@ const blogSchema = new mongoose.Schema({
   }
 })
 
-blogSchema.virtual('length').get(function length () {
-  return this.text.length
-})
+// blogSchema.virtual('length').get(function length () {
+//   return this.text.length
+// })
 
 const Blog = mongoose.model('Blog', blogSchema)
+// const Post = mongoose.model('Post', postSchema)
 
 module.exports = Blog
+  // Post
