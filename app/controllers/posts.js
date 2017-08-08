@@ -23,25 +23,31 @@ const show = (req, res) => {
   })
 }
 
-const create = (req, res, next) => {
-  // const post = Object.assign(req.body.post, {
-  //   _owner: req.user._id
-  // })
-  Blog.findById(req.body._id)
-  console.log('this is req.body: ', req)
-    .then(blog => blog.posts.push(req.body.post)
-      .then((blog) => blog.save())
-      .then(() => res.sendStatus(204))
-        .json({
-          post: blog.toJSON({ virtuals: true, blog: req.blog })
-        }))
-    .catch(next)
-}
-
 const update = (req, res, next) => {
   delete req.body._owner  // disallow owner reassignment.
   req.blog.update(req.body.blog)
-    .then(() => res.sendStatus(204))
+  .then(() => res.sendStatus(204))
+  .catch(next)
+}
+const create = (req, res, next) => {
+  const findBlogId = req._parsedUrl.pathname.split('/')
+  const blogId = findBlogId[2]
+  const post = Object.assign(req.body.posts, {
+    _owner: blogId
+  })
+  const blogToUpdate = req.params.id === findBlogId[2]
+  console.log('this is post', post)
+  return Blog.findOneAndUpdate(blogToUpdate)
+    // .then(data => console.log('this is data ', data))
+    .then(data => {
+      data.posts.push(post)
+      return data
+    })
+    .then((post) => post.save)
+    .then((post) => res.status(204)
+      .json({
+        posts: post.toJSON({ virtuals: true, post: req.body.posts })
+      }))
     .catch(next)
 }
 
@@ -58,8 +64,8 @@ module.exports = controller({
   update,
   destroy
 }, { before: [
-  { method: setUser, only: ['index', 'show'] },
+  { method: setUser, only: ['index', 'show', 'create'] },
   { method: authenticate, except: ['index', 'show'] },
-  { method: setModel(Blog), only: ['show'] },
-  { method: setModel(Blog, { forUser: true }), only: ['update', 'destroy'] }
+  { method: setModel(Blog), except: ['show'] },
+  { method: setModel(Blog, { forUser: true }), only: ['create', 'update', 'destroy'] }
 ] })

@@ -9,7 +9,7 @@ curl "${API}${URL_PATH}/${ID}/posts" \
   --header "Content-Type: application/json" \
   --header "Authorization: Token token=${TOKEN}" \
   --data '{
-    "post": {
+    "posts": {
       "title": "'"${TITLE}"'",
       "body": "'"${BODY}"'"
     }

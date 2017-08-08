@@ -16,16 +16,16 @@ const postSchema = new mongoose.Schema({
     ref: 'Blog',
     required: true
   }
-// }, {
-//   timestamps: true,
-//   toJSON: {
-//     virtuals: true,
-//     transform: function (doc, ret, options) {
-//       const blogId = (options.blog && options.blog._id) || false
-//       ret.editable = blogId && blogId.equals(doc._owner)
-//       return ret
-//     }
-//   }
+}, {
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: function (doc, ret, options) {
+      const blogId = (options.blog && options.blog._id) || false
+      ret.editable = blogId && blogId.equals(doc._owner)
+      return ret
+    }
+  }
 }
 )
 
