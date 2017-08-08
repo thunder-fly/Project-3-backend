@@ -37,7 +37,7 @@ const blogSchema = new mongoose.Schema({
   posts: [postSchema],
   _owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Blog',
     required: true
   }
 }, {
