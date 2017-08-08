@@ -23,12 +23,12 @@ const show = (req, res) => {
   })
 }
 
-const create = (req, res, next, id) => {
-  id = Blog._id
+const create = (req, res, next) => {
   // const post = Object.assign(req.body.post, {
   //   _owner: req.user._id
   // })
-  Blog.find(id)
+  Blog.findById(req.body._id)
+  console.log('this is req.body: ', req)
     .then(blog => blog.posts.push(req.body.post)
       .then((blog) => blog.save())
       .then(() => res.sendStatus(204))
