@@ -30,24 +30,32 @@ const update = (req, res, next) => {
   .catch(next)
 }
 const create = (req, res, next) => {
-  const findBlogId = req._parsedUrl.pathname.split('/')
-  const blogId = findBlogId[2]
+  // const findBlogId = req._parsedUrl.pathname.split('/')
+  // const blogId = findBlogId[2]
   const post = Object.assign(req.body.posts, {
-    _owner: blogId
+    _owner: req.params.id
   })
-  const blogToUpdate = req.params.id === findBlogId[2]
+  const blogToUpdate = req.params.id
+
   console.log('this is post', post)
+  console.log('this is req.params.id', req.params.id)
+  console.log('this is blogToUpdate', blogToUpdate)
   return Blog.findOneAndUpdate(blogToUpdate)
     // .then(data => console.log('this is data ', data))
-    .then(data => {
-      data.posts.push(post)
-      return data
+    .then(blog => {
+      blog.posts.push(post)
+      console.log('this is blog.posts ', blog.posts)
+      return blog
     })
-    .then((post) => post.save)
-    .then((post) => res.status(204)
+    .then((blog) => blog.save())
+    .then(() => res.status(204))
+    .then(post => {
+      console.log(post)
+      return post
+    })
       .json({
         posts: post.toJSON({ virtuals: true, post: req.body.posts })
-      }))
+      })
     .catch(next)
 }
 
