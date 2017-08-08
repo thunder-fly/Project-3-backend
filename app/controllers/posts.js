@@ -37,25 +37,17 @@ const create = (req, res, next) => {
   })
   const blogToUpdate = req.params.id
 
-  console.log('this is post', post)
-  console.log('this is req.params.id', req.params.id)
-  console.log('this is blogToUpdate', blogToUpdate)
   return Blog.findOneAndUpdate(blogToUpdate)
     // .then(data => console.log('this is data ', data))
     .then(blog => {
       blog.posts.push(post)
-      console.log('this is blog.posts ', blog.posts)
       return blog
     })
     .then((blog) => blog.save())
-    .then(() => res.status(204))
-    .then(post => {
-      console.log(post)
-      return post
-    })
+    .then((blog) => res.status(204)
       .json({
-        posts: post.toJSON({ virtuals: true, post: req.body.posts })
-      })
+        blog: blog.toJSON({ virtuals: true, blog: req.blog.posts })
+      }))
     .catch(next)
 }
 
