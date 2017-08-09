@@ -22,21 +22,25 @@ const show = (req, res, next) => {
   const blogId = findBlogId[2]
   console.log('this is req.params.id ', req.params.id)
   return Blog.find({_id: blogId})
-  .then(blogs => {
-    console.log('this is blogs ', blogs)
-    console.log('this is blogs[0].posts[0] ', blogs[0].posts[0])
-    return blogs.find({id: req.params.id})
+  .then(blog => {
+    console.log('this is blogs ', blog)
+    console.log('this is blog[0].posts[0] ', blog[0].posts)
+    blog[0].posts.forEach(function (post) {
+      if (post.id === req.params.id) {
+        console.log('this is post ', post)
+        res.json({
+          post: post.toJSON({ virtuals: true, blog: req.blog })
+        })
+      }
+    })
   })
   // .then(blogs => {
   //   console.log('this is blogs that is being put into map ', blogs)
   //   return blogs
   // })
-  .then(blogs => res.json({
-    post: [blogs].find((e) =>
-      e.toJSON({ virtuals: true, user: req.user }))
-  }))
   .catch(next)
 }
+
 const update = (req, res, next) => {
   delete req.body._owner  // disallow owner reassignment.
   req.blog.update(req.body.blog)
