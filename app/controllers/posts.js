@@ -9,18 +9,36 @@ const setUser = require('./concerns/set-current-user')
 const setModel = require('./concerns/set-mongoose-model')
 
 const index = (req, res, next, id) => {
-  Blog.find(id)
-    .then(posts => res.json({
-      posts: posts.map((e) =>
+  Blog.find()
+    .then(blogs => res.json({
+      blogs: blogs.map((e) =>
         e.toJSON({ virtuals: true, user: req.user }))
     }))
     .catch(next)
 }
 
-const show = (req, res) => {
-  res.json({
-    blog: req.blog.toJSON({ virtuals: true, user: req.user })
+const show = (req, res, next) => {
+  const findBlogId = req._parsedUrl.pathname.split('/')
+  const blogId = findBlogId[2]
+  console.log('this is req.params.id ', req.params.id)
+  return Blog.find({_id: blogId})
+  .then(blog => {
+    console.log('this is blogs ', blog)
+    console.log('this is blog[0].posts[0] ', blog[0].posts)
+    blog[0].posts.forEach(function (post) {
+      if (post.id === req.params.id) {
+        console.log('this is post ', post)
+        res.json({
+          post: post.toJSON({ virtuals: true, blog: req.blog })
+        })
+      }
+    })
   })
+  // .then(blogs => {
+  //   console.log('this is blogs that is being put into map ', blogs)
+  //   return blogs
+  // })
+  .catch(next)
 }
 
 const update = (req, res, next) => {
@@ -29,9 +47,8 @@ const update = (req, res, next) => {
   .then(() => res.sendStatus(204))
   .catch(next)
 }
+
 const create = (req, res, next) => {
-  // const findBlogId = req._parsedUrl.pathname.split('/')
-  // const blogId = findBlogId[2]
   const post = Object.assign(req.body.posts, {
     _owner: req.params.id
   })
@@ -64,7 +81,7 @@ module.exports = controller({
   update,
   destroy
 }, { before: [
-  { method: setUser, only: ['index', 'show', 'create'] },
+  { method: setUser, only: ['index', 'create'] },
   { method: authenticate, except: ['index', 'show'] },
   { method: setModel(Blog), except: ['show'] },
   { method: setModel(Blog, { forUser: true }), only: ['create', 'update', 'destroy'] }
