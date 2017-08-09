@@ -6,7 +6,7 @@ Sserpdrow is a single page application that acts as a content management system.
 A link to the deployed back-end app.
 
 A link to the repo for your front-end.
-https://git.generalassemb.ly/ThunderFly/Project-3-frontend
+https://github.com/thunder-fly/Project-3-frontend
 
 
 ## API
