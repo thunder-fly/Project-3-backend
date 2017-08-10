@@ -8,7 +8,7 @@ A catalog of routes (paths and methods) that the API expects.
 A link to the deployed back-end app.
 
 A link to the repo for your front-end.
-https://git.generalassemb.ly/ThunderFly/Project-3-frontend
+https://github.com/thunder-fly/Project-3-frontend
 
 A template for starting projects with `express` as an API. Includes
 authentication and common middlewares.
