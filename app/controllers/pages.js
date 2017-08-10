@@ -15,7 +15,7 @@ const index = (req, res, next) => {
 
 const show = (req, res, next) => {
   res.json({
-    blog: req.blog.toJSON({ virtuals: true, user: req.user })
+    page: req.page.toJSON({ virtuals: true, user: req.user })
   })
 }
 
@@ -24,37 +24,25 @@ const create = (req, res, next) => {
     _owner: req.user._id
   })
   Page.create(page)
-    .then(page => res.json({ page }))
-    .catch(err => next(err))
+  .then(page =>
+    res.status(201)
+      .json({
+        page: page.toJSON({ virtuals: true, user: req.user })
+      }))
+  .catch(next)
 }
 
 const update = (req, res, next) => {
-  const search = { _id: req.params.id, _owner: req.user._id }
-  Page.findOne(search)
-    .then(page => {
-      if (!page) {
-        return next()
-      }
-
-      delete req.body._owner  // disallow owner reassignment.
-      return page.update(req.body.page)
-        .then(() => res.sendStatus(200))
-    })
-    .catch(err => next(err))
+  delete req.body._owner  // disallow owner reassignment.
+  req.page.update(req.body.page)
+    .then(() => res.sendStatus(204))
+    .catch(next)
 }
 
 const destroy = (req, res, next) => {
-  const search = { _id: req.params.id, _owner: req.user._id }
-  Page.findOne(search)
-    .then(page => {
-      if (!page) {
-        return next()
-      }
-
-      return page.remove()
-        .then(() => res.sendStatus(200))
-    })
-    .catch(err => next(err))
+  req.page.remove()
+    .then(() => res.sendStatus(204))
+    .catch(next)
 }
 
 module.exports = controller({
