@@ -24,7 +24,7 @@ const show = (req, res, next) => {
   return Blog.find({_id: blogId})
   .then(blog => {
     console.log('this is blogs ', blog)
-    console.log('this is blog[0].posts[0] ', blog[0].posts)
+    console.log('this is blog[0].posts ', blog[0].posts)
     blog[0].posts.forEach(function (post) {
       if (post.id === req.params.id) {
         console.log('this is post ', post)
@@ -42,10 +42,20 @@ const show = (req, res, next) => {
 }
 
 const update = (req, res, next) => {
-  delete req.body._owner  // disallow owner reassignment.
-  req.blog.update(req.body.blog)
-  .then(() => res.sendStatus(204))
-  .catch(next)
+//   delete req.body._owner  // disallow owner reassignment.
+//   req.blog.update(req.body.blog)
+//   .then(() => res.sendStatus(204))
+//   .catch(next)
+  const findBlogId = req._parsedUrl.pathname.split('/')
+  const blogId = findBlogId[2]
+  console.log('this is req.body ', req.body)
+  Blog.update(
+    { _id: blogId, 'posts._id': req.params.id },
+    { $set: { 'posts.$.title': req.body.post.title } },
+    { $set: { 'posts.$.body': req.body.post.body } }
+  )
+    .then(() => res.status(204))
+    .catch(next)
 }
 
 const create = (req, res, next) => {
@@ -69,10 +79,46 @@ const create = (req, res, next) => {
 }
 
 const destroy = (req, res, next) => {
-  req.blog.remove()
-    .then(() => res.sendStatus(204))
-    .catch(next)
+  // let postDefined
+  // console.log('this is postDefined at the top', postDefined)
+  const findBlogId = req._parsedUrl.pathname.split('/')
+  const blogId = findBlogId[2]
+  // Blog.findOneAndUpdate(req.blog.id === blogId)
+  // .then(blog => console.log('this is blog ', blog))
+  // return Blog.find({_id: blogId})
+  // .then(blog => {
+  //   return blog[0].posts.find((post) => post.id === req.params.id)
+    // console.log('this is postDefined after assignment', postDefined)
+      // }
+      // return currentPost
+  // })
+  Blog.update({_id: blogId}, {$pull: {posts: {_id: req.params.id}}})
+    // console.log('this is currentPost ', currentPost)
+  // .then((post) => console.log('this is currentPost', post))
+  // .then(post => post.remove())
+  .then(() => res.sendStatus(204))
+  .catch(next)
 }
+//           .then(() => res.sendStatus(204))
+//           .catch(next)
+// }
+//   Blog.findOneAndUpdate(blogId)
+//   .then(blog => {
+//     console.log('this is blog ', blog)
+//     blog[0].posts.forEach(function (post) {
+//       if (post.id === req.params.id) {
+//         console.log('this is post ', post)
+//         post.remove()
+//       }
+//     })
+//   })
+//     .then((blog) => blog.save())
+//     .then((blog) => res.status(204)
+//       .json({
+//         blog: blog.toJSON({ virtuals: true, blog: req.blog.posts })
+//       }))
+//     .catch(next)
+// }
 
 module.exports = controller({
   index,
@@ -83,6 +129,6 @@ module.exports = controller({
 }, { before: [
   { method: setUser, only: ['index', 'create'] },
   { method: authenticate, except: ['index', 'show'] },
-  { method: setModel(Blog), except: ['show'] },
-  { method: setModel(Blog, { forUser: true }), only: ['create', 'update', 'destroy'] }
+  { method: setModel(Blog), only: ['show'] },
+  { method: setModel(Blog, { forUser: true }), only: [] }
 ] })
