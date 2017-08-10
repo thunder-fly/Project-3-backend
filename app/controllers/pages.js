@@ -2,7 +2,9 @@ const controller = require('lib/wiring/controller')
 const models = require('app/models')
 const Page = models.page
 
+const setUser = require('./concerns/set-current-user')
 const authenticate = require('./concerns/authenticate')
+const setModel = require('./concerns/set-mongoose-model')
 
 const index = (req, res, next) => {
   const owner = { _owner: req.user._id }
@@ -12,9 +14,9 @@ const index = (req, res, next) => {
 }
 
 const show = (req, res, next) => {
-  Page.findById(req.params.id)
-    .then(page => page ? res.json({ page }) : next())
-    .catch(err => next(err))
+  res.json({
+    blog: req.blog.toJSON({ virtuals: true, user: req.user })
+  })
 }
 
 const create = (req, res, next) => {
@@ -62,5 +64,8 @@ module.exports = controller({
   update,
   destroy
 }, { before: [
-  { method: authenticate, except: [] }
+  { method: setUser, only: ['index', 'show'] },
+  { method: authenticate, except: ['index', 'show'] },
+  { method: setModel(Page), only: ['show'] },
+  { method: setModel(Page, { forUser: true }), only: ['update', 'destroy', 'create'] }
 ] })

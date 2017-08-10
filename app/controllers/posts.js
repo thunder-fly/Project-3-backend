@@ -6,16 +6,16 @@ const Blog = models.blog
 
 const authenticate = require('./concerns/authenticate')
 const setUser = require('./concerns/set-current-user')
-const setModel = require('./concerns/set-mongoose-model')
+// const setModel = require('./concerns/set-mongoose-model')
 
-const index = (req, res, next, id) => {
-  Blog.find()
-    .then(blogs => res.json({
-      blogs: blogs.map((e) =>
-        e.toJSON({ virtuals: true, user: req.user }))
-    }))
-    .catch(next)
-}
+// const index = (req, res, next, id) => {
+//   Blog.find()
+//     .then(blogs => res.json({
+//       blogs: blogs.map((e) =>
+//         e.toJSON({ virtuals: true, user: req.user }))
+//     }))
+//     .catch(next)
+// }
 
 const show = (req, res, next) => {
   const findBlogId = req._parsedUrl.pathname.split('/')
@@ -49,10 +49,10 @@ const update = (req, res, next) => {
   const findBlogId = req._parsedUrl.pathname.split('/')
   const blogId = findBlogId[2]
   console.log('this is req.body ', req.body)
-  Blog.update(
+  return Blog.update(
     { _id: blogId, 'posts._id': req.params.id },
-    { $set: { 'posts.$.title': req.body.post.title } },
-    { $set: { 'posts.$.body': req.body.post.body } }
+    { $set: { 'posts.$.title': req.body.post.title } }
+    // { $set: { 'posts.$.body': req.body.post.body } }
   )
     .then(() => res.status(204))
     .catch(next)
@@ -64,7 +64,7 @@ const create = (req, res, next) => {
   })
   const blogToUpdate = req.params.id
 
-  return Blog.findOneAndUpdate(blogToUpdate)
+  Blog.findOneAndUpdate(blogToUpdate)
     // .then(data => console.log('this is data ', data))
     .then(blog => {
       blog.posts.push(post)
@@ -73,7 +73,7 @@ const create = (req, res, next) => {
     .then((blog) => blog.save())
     .then((blog) => res.status(204)
       .json({
-        blog: blog.toJSON({ virtuals: true, blog: req.blog.posts })
+        blog: blog.toJSON({ virtuals: true, blog: req.body.posts })
       }))
     .catch(next)
 }
@@ -121,14 +121,14 @@ const destroy = (req, res, next) => {
 // }
 
 module.exports = controller({
-  index,
+  // index,
   show,
   create,
   update,
   destroy
 }, { before: [
-  { method: setUser, only: ['index', 'create'] },
-  { method: authenticate, except: ['index', 'show'] },
-  { method: setModel(Blog), only: ['show'] },
-  { method: setModel(Blog, { forUser: true }), only: [] }
+  { method: setUser, except: ['show'] },
+  { method: authenticate, except: ['show'] }
+  // { method: setModel(Blog), only: ['show'] },
+  // { method: setModel(Blog, { forBlog: true }), only: ['create'] }
 ] })
