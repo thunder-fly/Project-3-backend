@@ -23,6 +23,7 @@ const create = (req, res, next) => {
   const page = Object.assign(req.body.page, {
     _owner: req.user._id
   })
+  console.log('this is Page ', Page)
   Page.create(page)
   .then(page =>
     res.status(201)
@@ -55,5 +56,5 @@ module.exports = controller({
   { method: setUser, only: ['index', 'show'] },
   { method: authenticate, except: ['index', 'show'] },
   { method: setModel(Page), only: ['show'] },
-  { method: setModel(Page, { forUser: true }), only: ['update', 'destroy', 'create'] }
+  { method: setModel(Page, { forUser: true }), only: ['update', 'destroy'] }
 ] })
