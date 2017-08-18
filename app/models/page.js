@@ -7,7 +7,7 @@ const pageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  body: {
+  content: {
     type: String,
     required: true
   },
@@ -16,6 +16,7 @@ const pageSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   }
+
 }, {
   timestamps: true,
   toJSON: {
