@@ -1,6 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const postSchema = new mongoose.Schema({
   title: {
@@ -38,6 +39,7 @@ const blogSchema = new mongoose.Schema({
   _owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    unique: true,
     required: true
   }
 }, {
@@ -52,6 +54,7 @@ const blogSchema = new mongoose.Schema({
   }
 })
 
+blogSchema.plugin(uniqueValidator)
 // blogSchema.virtual('length').get(function length () {
 //   return this.text.length
 // })
