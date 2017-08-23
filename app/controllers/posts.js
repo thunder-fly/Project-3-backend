@@ -42,7 +42,7 @@ const show = (req, res, next) => {
 }
 
 const update = (req, res, next) => {
-//   delete req.body._owner  // disallow owner reassignment.
+  delete req.body._owner  // disallow owner reassignment.
 //   req.blog.update(req.body.blog)
 //   .then(() => res.sendStatus(204))
 //   .catch(next)
@@ -51,10 +51,10 @@ const update = (req, res, next) => {
   console.log('this is req.body ', req.body)
   return Blog.update(
     { _id: blogId, 'posts._id': req.params.id },
-    { $set: { 'posts.$.title': req.body.post.title, 'posts.$.body': req.body.post.body } }
+    { $set: { 'posts.$.title': req.body.posts.title, 'posts.$.body': req.body.posts.body } }
     // { $set: { 'posts.$.body': req.body.post.body } }
   )
-    .then(() => res.status(204))
+    .then(() => res.sendStatus(204))
     .catch(next)
 }
 
@@ -62,7 +62,7 @@ const create = (req, res, next) => {
   const post = Object.assign(req.body.posts, {
     _owner: req.params.id
   })
-
+  console.log('post: ', post)
   return Blog.update(
     { _id: req.params.id },
     { $push: { posts: post } }
@@ -136,7 +136,7 @@ module.exports = controller({
   destroy
 }, { before: [
   { method: setUser, except: ['show'] },
-  { method: authenticate, except: ['show'] },
-  { method: setModel(Blog), only: ['show'] },
-  { method: setModel(Blog, { forBlog: true }), only: ['create'] }
+  { method: authenticate, except: ['show'] }
+  // { method: setModel(Blog), only: ['show'] },
+  // { method: setModel(Blog, { forBlog: true }), only: ['create'] }
 ] })
