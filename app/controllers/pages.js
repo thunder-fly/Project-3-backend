@@ -7,7 +7,9 @@ const authenticate = require('./concerns/authenticate')
 const setModel = require('./concerns/set-mongoose-model')
 
 const index = (req, res, next) => {
-  Page.find()
+  console.log('req.query is ', req.query)
+  // Page.find({ _owner: req.query.user_id })
+  Page.find(req.query)
   // .then(pages => {
   //   pages.forEach(function (userPages) {
   //     console.log('this is pages[0].owner ', pages._owner)
