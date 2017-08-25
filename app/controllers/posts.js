@@ -136,7 +136,7 @@ module.exports = controller({
   destroy
 }, { before: [
   { method: setUser, except: ['show'] },
-  { method: authenticate, except: ['show'] }
-  // { method: setModel(Blog), only: ['show'] },
-  // { method: setModel(Blog, { forBlog: true }), only: ['create'] }
+  { method: authenticate, except: ['show'] },
+  { method: setModel(Blog), only: ['show'] },
+  { method: setModel(Blog, { forBlog: true }), only: ['update, destroy'] }
 ] })
