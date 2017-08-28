@@ -6,7 +6,7 @@ const Blog = models.blog
 
 const authenticate = require('./concerns/authenticate')
 const setUser = require('./concerns/set-current-user')
-// const setModel = require('./concerns/set-mongoose-model')
+const setModel = require('./concerns/set-mongoose-model')
 
 // const index = (req, res, next, id) => {
 //   Blog.find()
@@ -42,7 +42,7 @@ const show = (req, res, next) => {
 }
 
 const update = (req, res, next) => {
-//   delete req.body._owner  // disallow owner reassignment.
+  delete req.body._owner  // disallow owner reassignment.
 //   req.blog.update(req.body.blog)
 //   .then(() => res.sendStatus(204))
 //   .catch(next)
@@ -51,10 +51,10 @@ const update = (req, res, next) => {
   console.log('this is req.body ', req.body)
   return Blog.update(
     { _id: blogId, 'posts._id': req.params.id },
-    { $set: { 'posts.$.title': req.body.post.title } }
+    { $set: { 'posts.$.title': req.body.posts.title, 'posts.$.body': req.body.posts.body } }
     // { $set: { 'posts.$.body': req.body.post.body } }
   )
-    .then(() => res.status(204))
+    .then(() => res.sendStatus(204))
     .catch(next)
 }
 
@@ -62,21 +62,29 @@ const create = (req, res, next) => {
   const post = Object.assign(req.body.posts, {
     _owner: req.params.id
   })
-  const blogToUpdate = req.params.id
-
-  Blog.findOneAndUpdate(blogToUpdate)
-    // .then(data => console.log('this is data ', data))
-    .then(blog => {
-      blog.posts.push(post)
-      return blog
+  console.log('post: ', post)
+  return Blog.update(
+    { _id: req.params.id },
+    { $push: { posts: post } }
+  )
+    .then(data => {
+      console.log('this is data ', data)
+      return data
     })
-    .then((blog) => blog.save())
-    .then((blog) => res.status(204)
-      .json({
-        blog: blog.toJSON({ virtuals: true, blog: req.body.posts })
-      }))
+    .then((post) => res.sendStatus(204))
+      // .json({
+      //   blog: res.toJSON({ virtuals: true, blog: req.body.posts })
+      // }))
     .catch(next)
 }
+  // const blogToUpdate = req.params.id
+  //
+  // Blog.findOneAndUpdate({_id: blogToUpdate})
+  //   // .then(data => console.log('this is data ', data))
+  //   .then(blog => {
+  //     blog.posts.push(post)
+  //     return blog
+  //   })
 
 const destroy = (req, res, next) => {
   // let postDefined
@@ -128,7 +136,7 @@ module.exports = controller({
   destroy
 }, { before: [
   { method: setUser, except: ['show'] },
-  { method: authenticate, except: ['show'] }
-  // { method: setModel(Blog), only: ['show'] },
-  // { method: setModel(Blog, { forBlog: true }), only: ['create'] }
+  { method: authenticate, except: ['show'] },
+  { method: setModel(Blog), only: ['show'] },
+  { method: setModel(Blog, { forBlog: true }), only: ['update, destroy'] }
 ] })
